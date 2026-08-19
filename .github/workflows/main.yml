@@ -42,6 +42,6 @@ jobs:
         run: |
           node index.js
 
-          - name: Push changes
-        run: 
+      - name: Push changes
+        run: |
           git push -f origin main
