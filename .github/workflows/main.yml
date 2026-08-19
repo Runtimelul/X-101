@@ -1,8 +1,9 @@
 name: Node.js Setup and Deployment
 
 on:
-  workflow_dispatch:
-
+  push:
+    branches:
+      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
