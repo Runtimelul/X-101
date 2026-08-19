@@ -3,51 +3,42 @@ import moment from "moment";
 import simpleGit from "simple-git";
 import random from "random";
 
+const git = simpleGit();
 const path = "./data.json";
-function getRndInteger(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) ) + min;
-}
 
+const makeCommits = async (n) => {
+  console.log(`Generating ${n} commits...`);
 
-let counter = 0;
+  for (let i = 1; i <= n; i++) {
+    // Generate dates strictly in the past (1 to 1,460 days ago / 4 years back)
+    const daysAgo = random.int(1, 365 * 4);
+    const hours = random.int(0, 23);
+    const minutes = random.int(0, 59);
 
-const makeCommits = (n) => {
-  if (n === 0) return;
-  counter++;
-  console.log(`Commit #${counter}`);
-  
-  const x = random.int(0, 54);
-  const y = random.int(0, 5);
-  const date = moment()
-    .subtract(getRndInteger(0,4), "y")
-    .add(1, "d")
-    .add(x, "w")
-    .add(y, "d")
-    .format();
-  const data = { date: date };
-  console.log(date);
-  
-  jsonfile.writeFile(path, data, () => {
-    simpleGit()
-      .pull("origin", "main")
-      .then(() => {
-        simpleGit()
-          .add([path])
-          .commit(date, { "--date": date })
-          .push("origin", "main", { "--force": true }, (err) => {
-            if (err) {
-              console.error("Push error:", err);
-            } else {
-              console.log("Push successful!");
-            }
-            makeCommits.bind(this, --n)();
-          })
-      })
-      .catch((err) => {
-        console.error("Pull error:", err);
-      });
-  });
+    const date = moment()
+      .subtract(daysAgo, "days")
+      .set({ hour: hours, minute: minutes })
+      .toISOString();
+
+    const data = { date: date };
+
+    // Write file and create local commit
+    await jsonfile.writeFile(path, data);
+    await git.add([path]);
+    await git.commit(date, { "--date": date });
+
+    if (i % 100 === 0 || i === n) {
+      console.log(`[${i}/${n}] Commit created for date: ${date}`);
+    }
+  }
+
+  console.log("Pushing all commits to origin/main...");
+  try {
+    await git.push("origin", "main", { "--force": true });
+    console.log("Push successful! All commits are now on GitHub.");
+  } catch (err) {
+    console.error("Push error:", err);
+  }
 };
 
-makeCommits(30125);
-
+makeCommits(1425);
