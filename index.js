@@ -12,7 +12,7 @@ function getRndInteger(min, max) {
 let counter = 0;
 
 const makeCommits = (n) => {
-  if (n === 0) return4
+  if (n === 0) return;
   counter++;
   console.log(`Commit #${counter}`);
   
