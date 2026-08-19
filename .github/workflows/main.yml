@@ -1,20 +1,13 @@
 name: Node.js Setup and Deployment
 
 on:
-  push:
-    branches:
-      - main
-      
   workflow_dispatch:
-    inputs:
-      your-input-name:
-        description: 'Your input description'
-        required: false
-
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,23 +17,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
-      - name: Install Git
-        run: |
-          sudo apt-get update && sudo apt-get install git
+          node-version: '22'
+
       - name: Install dependencies
         run: |
           npm install moment simple-git random jsonfile
-
-
 
       - name: Configure Git
         run: |
           git config --global user.name "fahri1616"
           git config --global user.email "ClearenceLaposky101899@outlook.com"
 
-    
-
       - name: Run Node.js script
         run: |
           node index.js
+
+      - name: Push changes to main
+        run: |
+          git push -f origin main
